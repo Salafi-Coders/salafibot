@@ -41,6 +41,10 @@ This project is a means of cooperation upon al-birr wa at-taqwā, and not upon f
 
 ---
 
+## 🥇Thanks to our awesome contributors!
+
+[![Contributors](https://contrib.rocks/image?repo=Salafi-Coders/salafibot)](https://github.com/Salafi-Coders/salafibot/graphs/contributors)
+
 ## 📖 License
 
 This project is open-source under the MIT License.  
