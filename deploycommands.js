@@ -40,7 +40,6 @@ async function deployCommands() {
 	try {
 		console.log('🔄 Loading commands...');
 
-		// Grab all the command folders from the commands directory
 		const foldersPath = path.join(__dirname, 'commands');
 
 		if (!fs.existsSync(foldersPath)) {
@@ -50,7 +49,6 @@ async function deployCommands() {
 
 		const commandFolders = fs.readdirSync(foldersPath);
 
-		// Loop through each folder in the commands directory
 		for (const folder of commandFolders) {
 			const commandsPath = path.join(foldersPath, folder);
 
@@ -60,17 +58,14 @@ async function deployCommands() {
 				.readdirSync(commandsPath)
 				.filter(file => file.endsWith('.js'));
 
-			// Load each command file
 			for (const file of commandFiles) {
 				const filePath = path.join(commandsPath, file);
 
 				try {
-					// Clear require cache to allow reloading
 					delete require.cache[require.resolve(filePath)];
 					const command = require(filePath);
 
 					if ('data' in command && 'execute' in command) {
-						// If a specific command is requested, only deploy that command
 						if (specificCommand && command.data.name !== specificCommand) {
 							continue;
 						}
@@ -86,7 +81,6 @@ async function deployCommands() {
 			}
 		}
 
-		// Check if specific command was found
 		if (specificCommand && commands.length === 0) {
 			console.error(`❌ Command "${specificCommand}" not found.`);
 			process.exit(1);
@@ -97,32 +91,38 @@ async function deployCommands() {
 			process.exit(1);
 		}
 
-		// Construct and prepare an instance of the REST module
 		const rest = new REST().setToken(token);
-
 		console.log(`🚀 Started ${specificCommand ? `deploying command "${specificCommand}"` : `refreshing ${commands.length} application (/) commands`}...`);
 
-		// Determine the route based on global or guild deployment
 		const route = isGlobal
 			? Routes.applicationCommands(clientId)
 			: Routes.applicationGuildCommands(clientId, guildId);
 
-		let data;
+		// 🆕 Fetch existing commands to prevent duplicates
+		const existingCommands = await rest.get(route);
+		const isDuplicate = (cmd) => existingCommands.some(existing => existing.name === cmd.name);
+
+		let filteredCommands;
 
 		if (specificCommand) {
-			// If deploying a specific command, get existing commands and update
-			const existingCommands = await rest.get(route);
-			const updatedCommands = existingCommands.filter(cmd => cmd.name !== specificCommand);
-			updatedCommands.push(...commands);
-
-			data = await rest.put(route, { body: updatedCommands });
-			console.log(`✅ Successfully deployed command "${specificCommand}".`);
+			// Remove old version of the specific command and deploy new one
+			filteredCommands = existingCommands.filter(cmd => cmd.name !== specificCommand);
+			filteredCommands.push(...commands);
 		} else {
-			// Deploy all commands
-			data = await rest.put(route, { body: commands });
-			console.log(`✅ Successfully reloaded ${data.length} application (/) commands.`);
+			// Skip already deployed commands
+			const newUniqueCommands = commands.filter(cmd => !isDuplicate(cmd));
+
+			if (newUniqueCommands.length === 0) {
+				console.log('⚠️  All commands already deployed. No changes made.');
+				process.exit(0);
+			}
+
+			filteredCommands = [...existingCommands, ...newUniqueCommands];
 		}
 
+		const data = await rest.put(route, { body: filteredCommands });
+
+		console.log(`✅ Successfully ${specificCommand ? `deployed "${specificCommand}"` : `deployed ${data.length} application (/) commands`}.`);
 		console.log(`📍 Deployment target: ${isGlobal ? 'Global' : `Guild (${guildId})`}`);
 
 		if (!isGlobal && data.length > 0) {
@@ -144,7 +144,6 @@ async function deployCommands() {
 	}
 }
 
-// Show usage information
 function showUsage() {
 	console.log(`
 Usage: node deploy-commands.js [options]
@@ -166,11 +165,10 @@ Environment Variables Required:
 `);
 }
 
-// Handle help flag
 if (args.includes('--help') || args.includes('-h')) {
 	showUsage();
 	process.exit(0);
 }
 
-// Run the deployment
 deployCommands();
+// End of deploy-commands.js
