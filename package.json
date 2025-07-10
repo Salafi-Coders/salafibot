@@ -7,6 +7,12 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
+    "start": "node .",
+    "lint": "eslint .",
+    "deployall": "node deploycommands.js --global",
+    "deployall:dev": "node deploycommands.js",
+    "deploycommand": "node deploycommands.js --global --command",
+    "deploycommand:dev": "node deploycommands.js --command",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
