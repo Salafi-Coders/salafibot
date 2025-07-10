@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import dotenv from 'dotenv'; // Import dotenv to load environment variables
-import { Client, Collection, GatewayIntentBits } from 'discord.js'; // Import necessary classes from discord.js
+import { Client, Collection, GatewayIntentBits, Partials } from 'discord.js'; // Import necessary classes from discord.js
 import { Modules } from './src/modules.js'; // Import modules library
 import { Commands } from './src/commands.js';
 
@@ -19,7 +19,10 @@ const client = new Client({
 		GatewayIntentBits.Guilds,
 		GatewayIntentBits.GuildMessages,
 		GatewayIntentBits.MessageContent, // Required for message content
+        GatewayIntentBits.GuildMessageReactions, // Required for reactions
 	],
+    partials: [Partials.Message, Partials.Channel, Partials.Reaction], // Important for uncached messages
+
 });
 // Create a collection to store commands
 client.commands = new Collection();

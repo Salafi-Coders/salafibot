@@ -8,10 +8,23 @@
 import { EmbedBuilder } from 'discord.js';
 import config from '../config.json' with { type: 'json' };
 
+function containsBannedEmoji(content) {
+    return config.bannedEmojis.some(emoji => content.includes(emoji));
+}
+
 export default {
     name: 'messageCreate',
     async execute(message) {
         if (message.author.bot) return;
+
+        // Check for banned emojis in message
+        if (containsBannedEmoji(message.content, config.bannedEmojis)) {
+            await message.delete();
+            await message.channel.send({
+                content: `${message.author}, your message contained a banned emoji and was removed.`,
+            });
+            return;
+        }
 
         const phrases = [
             { phrase: 'as', response_ar: 'السلام عليكم ورحمة الله وبركاته', response_en: 'May the peace, blessings and mercy of Allah be upon you.' },
@@ -32,3 +45,4 @@ export default {
         }
     },
 };
+
