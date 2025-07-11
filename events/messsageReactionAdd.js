@@ -16,11 +16,11 @@ export default {
         if (config.bannedEmojis.includes(emoji)) {
             try {
                 await reaction.users.remove(user.id);
-                await reaction.message.channel.send({
-                    content: `${user}, that emoji is banned and your reaction was removed.`,
+                await user.send({
+                    content: `That emoji is banned and your reaction was removed. Please avoid using it in the future.`,
                 });
             } catch (err) {
-                // Handle error silently
+                // Handle error silently`
             }
         }
     },

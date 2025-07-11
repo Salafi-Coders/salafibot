@@ -16,13 +16,17 @@ export default {
     name: 'messageCreate',
     async execute(message) {
         if (message.author.bot) return;
-
         // Check for banned emojis in message
         if (containsBannedEmoji(message.content, config.bannedEmojis)) {
             await message.delete();
-            await message.channel.send({
-                content: `${message.author}, your message contained a banned emoji and was removed.`,
+            try {
+            await message.author.send({
+                content: `Your message in ${message.guild ? message.guild.name : "this server"} contained a banned emoji and was removed.`,
             });
+            } catch (err) {
+            // User has DMs disabled or blocked the bot
+                console.error(`Could not send DM to ${message.author.tag}:`, err);
+            }
             return;
         }
 
