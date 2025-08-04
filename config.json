@@ -57,10 +57,6 @@
             "enabled": true,
             "module": "bot"
         },
-        "jummah": {
-            "enabled": true,
-            "module": "utility"
-        },
         "basmallah": {
             "enabled": true,
             "module": "islamic"
