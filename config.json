@@ -60,6 +60,10 @@
         "jummah": {
             "enabled": true,
             "module": "utility"
+        },
+        "basmallah": {
+            "enabled": true,
+            "module": "islamic"
         }
     },
     "admins": [
