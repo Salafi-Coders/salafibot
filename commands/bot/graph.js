@@ -4,6 +4,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import os from "os";
+import { EmbedBuilder, AttachmentBuilder } from "discord.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -73,7 +74,7 @@ export default {
     const hours = interaction.options.getInteger("hours");
     await interaction.deferReply();
 
-    const { labels, cpuData, memData } = getSystemUsageData(hours);
+    const { labels, cpuData, memData } = dummyGetUsageData(hours); //CHANGE THIS TO getSystemUsageData(hours) TO USE REAL DATA
 
     const width = 800;
     const height = 400;
@@ -90,9 +91,9 @@ export default {
             borderColor: "rgba(255,99,132,1)",
             backgroundColor: "rgba(255,99,132,0.2)",
             fill: false,
-            tension: 0.5, // Increase tension for more rounded lines
-            borderJoinStyle: "round", // Optional: round joins
-            borderCapStyle: "round",  // Optional: round line caps
+            tension: 0.5,
+            borderJoinStyle: "round",
+            borderCapStyle: "round",
             pointRadius: 4,
             pointBorderWidth: 2,
             pointBackgroundColor: "rgba(255,99,132,1)",
@@ -104,7 +105,7 @@ export default {
             borderColor: "rgba(54,162,235,1)",
             backgroundColor: "rgba(54,162,235,0.2)",
             fill: false,
-            tension: 0.5, // Increase tension for more rounded lines
+            tension: 0.5,
             borderJoinStyle: "round",
             borderCapStyle: "round",
             pointRadius: 4,
@@ -120,12 +121,26 @@ export default {
           title: {
             display: true,
             text: `CPU & Memory Usage - Last ${hours}h`,
+            font: { size: 20 },
+            color: "#23272A",
+          },
+          legend: {
+            labels: {
+              color: "#23272A",
+              font: { size: 14 },
+            },
           },
         },
         scales: {
+          x: {
+            ticks: { color: "#23272A", font: { size: 12 } },
+            grid: { color: "rgba(200,200,200,0.2)" },
+          },
           y: {
             beginAtZero: true,
             max: 100,
+            ticks: { color: "#23272A", font: { size: 12 } },
+            grid: { color: "rgba(200,200,200,0.2)" },
           },
         },
       },
@@ -133,15 +148,22 @@ export default {
 
     const buffer = await chartJSNodeCanvas.renderToBuffer(configuration);
 
-    const fileName = `usage-graph-${Date.now()}.png`;
-    const filePath = path.join(__dirname, fileName);
-    fs.writeFileSync(filePath, buffer);
-
-    await interaction.editReply({
-      files: [filePath],
-      content: `Here is the CPU & Memory usage graph for the last ${hours} hours.`,
+    const attachment = new AttachmentBuilder(buffer, {
+      name: "usage-graph.png",
     });
 
-    fs.unlinkSync(filePath); // Clean up
+    const embed = new EmbedBuilder()
+      .setTitle("📊 CPU & Memory Usage")
+      .setDescription(
+        `Here is the CPU & Memory usage graph for the last **${hours} hours**.`
+      )
+      .setColor(0x5865f2)
+      .setImage("attachment://usage-graph.png")
+      .setTimestamp();
+
+    await interaction.editReply({
+      embeds: [embed],
+      files: [attachment],
+    });
   },
 };
