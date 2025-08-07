@@ -3,12 +3,36 @@ import { ChartJSNodeCanvas } from "chartjs-node-canvas";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import os from "os";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Returns an array of { timestamp, cpu, memory } for each 10-minute interval in the past `hours`
+async function getSystemUsageData(hours) {
+  const points = hours * 6; // 1 point every 10 minutes
+  const data = [];
+  for (let i = points - 1; i >= 0; i--) {
+    const timestamp = Date.now() - i * 10 * 60 * 1000;
+
+    // CPU usage: average load over last minute, as a percentage of logical CPUs
+    const cpuLoad = (os.loadavg()[0] / os.cpus().length) * 100;
+
+    // Memory usage: used memory as a percentage of total
+    const totalMem = os.totalmem();
+    const freeMem = os.freemem();
+    const usedMemPercent = ((totalMem - freeMem) / totalMem) * 100;
+
+    data.push({
+      timestamp,
+      cpu: cpuLoad,
+      memory: usedMemPercent,
+    });
+  }
+  return data;
+}
 // Dummy function to simulate fetching CPU & Memory usage data
-function getUsageData(hours) {
+function dummyGetUsageData(hours) {
   // Generate timestamps and random data for demonstration
   const now = Date.now();
   const points = hours * 6; // 1 point every 10 minutes
@@ -49,7 +73,7 @@ export default {
     const hours = interaction.options.getInteger("hours");
     await interaction.deferReply();
 
-    const { labels, cpuData, memData } = getUsageData(hours);
+    const { labels, cpuData, memData } = getSystemUsageData(hours);
 
     const width = 800;
     const height = 400;
@@ -66,7 +90,13 @@ export default {
             borderColor: "rgba(255,99,132,1)",
             backgroundColor: "rgba(255,99,132,0.2)",
             fill: false,
-            tension: 0.1,
+            tension: 0.5, // Increase tension for more rounded lines
+            borderJoinStyle: "round", // Optional: round joins
+            borderCapStyle: "round",  // Optional: round line caps
+            pointRadius: 4,
+            pointBorderWidth: 2,
+            pointBackgroundColor: "rgba(255,99,132,1)",
+            pointBorderColor: "#fff",
           },
           {
             label: "Memory Usage (%)",
@@ -74,7 +104,13 @@ export default {
             borderColor: "rgba(54,162,235,1)",
             backgroundColor: "rgba(54,162,235,0.2)",
             fill: false,
-            tension: 0.1,
+            tension: 0.5, // Increase tension for more rounded lines
+            borderJoinStyle: "round",
+            borderCapStyle: "round",
+            pointRadius: 4,
+            pointBorderWidth: 2,
+            pointBackgroundColor: "rgba(54,162,235,1)",
+            pointBorderColor: "#fff",
           },
         ],
       },
