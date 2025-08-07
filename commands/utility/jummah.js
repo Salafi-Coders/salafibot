@@ -1,12 +1,12 @@
 import { CronJob } from "cron"; // Import CronJob for scheduling tasks
 import { SlashCommandBuilder } from "discord.js"; // Import SlashCommandBuilder to create slash commands
 
-const jummahSettings = new Map(); // serverId => { imageUrl, channelId, job }
+const jumuahSettings = new Map(); // serverId => { imageUrl, channelId, job }
 
 export default {
   data: new SlashCommandBuilder()
-    .setName("jummah")
-    .setDescription("Setup automatic Jummah image posting")
+    .setName("jumuah")
+    .setDescription("Setup automatic Jumuah image posting")
     .addStringOption((option) =>
       option
         .setName("image")
@@ -24,7 +24,7 @@ export default {
     const channel = interaction.options.getChannel("channel");
 
     // Stop previous job if exists
-    const prev = jummahSettings.get(interaction.guildId);
+    const prev = jumuahSettings.get(interaction.guildId);
     if (prev && prev.job) prev.job.stop();
 
     // Create cron job: Every 2 hours on Friday
@@ -34,20 +34,20 @@ export default {
         try {
           await channel.send({ files: [imageUrl] });
         } catch (err) {
-          console.error("Failed to send Jummah image:", err);
+          console.error("Failed to send Jumuah image:", err);
         }
       }
     );
 
     job.start();
-    jummahSettings.set(interaction.guildId, {
+    jumuahSettings.set(interaction.guildId, {
       imageUrl,
       channelId: channel.id,
       job,
     });
 
     await interaction.reply({
-      content: "Jummah image posting initialized!",
+      content: "Jumuah image posting initialized!",
       ephemeral: true,
     });
   },
