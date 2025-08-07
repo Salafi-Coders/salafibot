@@ -122,25 +122,25 @@ export default {
             display: true,
             text: `CPU & Memory Usage - Last ${hours}h`,
             font: { size: 20 },
-            color: "#23272A",
+            color: "#dae6efff",
           },
           legend: {
             labels: {
-              color: "#23272A",
+              color: "#dae6efff",
               font: { size: 14 },
             },
           },
         },
         scales: {
           x: {
-            ticks: { color: "#23272A", font: { size: 12 } },
-            grid: { color: "rgba(200,200,200,0.2)" },
+            ticks: { color: "#ffffffff", font: { size: 12 } },
+            grid: { color: "rgba(255, 255, 255, 0.55)" },
           },
           y: {
             beginAtZero: true,
             max: 100,
-            ticks: { color: "#23272A", font: { size: 12 } },
-            grid: { color: "rgba(200,200,200,0.2)" },
+            ticks: { color: "#ffffffff", font: { size: 12 } },
+            grid: { color: "rgba(255, 255, 255, 0.55)" },
           },
         },
       },
