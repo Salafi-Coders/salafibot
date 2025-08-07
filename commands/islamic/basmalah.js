@@ -2,8 +2,8 @@ import { SlashCommandBuilder, EmbedBuilder } from "discord.js";
 
 export default {
   data: new SlashCommandBuilder()
-    .setName("basmallah")
-    .setDescription("Sends the Basmallah text")
+    .setName("basmalah")
+    .setDescription("Sends the Basmalah text")
     .addStringOption((option) =>
       option
         .setName("title")
