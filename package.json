@@ -21,6 +21,7 @@
     "@google/generative-ai": "^0.24.1",
     "@octokit/rest": "^22.0.0",
     "axios": "^1.10.0",
+    "chartjs-node-canvas": "^5.0.0",
     "dayjs": "^1.11.13",
     "dayjs-plugin-utc": "^0.1.2",
     "discord.js": "^14.20.0",
